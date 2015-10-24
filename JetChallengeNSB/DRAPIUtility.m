@@ -8,6 +8,7 @@
 
 #import "DRAPIUtility.h"
 #import <AFNetworking.h>
+#import "DRKeys.h"
 
 @implementation DRAPIUtility
 - (void)getImagesCount:(NSNumber*)count
@@ -20,7 +21,7 @@
     NSOperationQueue* imageQueue = [[NSOperationQueue alloc] init];
     imageQueue.maxConcurrentOperationCount = 10;
     NSURL* randomimageURL =
-    [NSURL URLWithString:@"https://lorempixel.com/400/400"];
+    [NSURL URLWithString:@"https://unsplash.it/400/400"];
     
     for (NSInteger i = 0; i < [count integerValue]; i++) {
         NSURLRequest* request = [NSURLRequest requestWithURL:randomimageURL];
