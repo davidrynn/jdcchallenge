@@ -11,10 +11,11 @@
 		22FE93411BD97694004493B1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93401BD97694004493B1 /* AppDelegate.m */; };
 		22FE93571BD97694004493B1 /* JetChallengeNSBTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93561BD97694004493B1 /* JetChallengeNSBTests.m */; };
 		22FE93621BD97694004493B1 /* JetChallengeNSBUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93611BD97694004493B1 /* JetChallengeNSBUITests.m */; };
-		22FE93711BD97782004493B1 /* DRCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93701BD97782004493B1 /* DRCollectionViewController.m */; settings = {ASSET_TAGS = (); }; };
-		22FE93731BD978C4004493B1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22FE93721BD978C4004493B1 /* Assets.xcassets */; settings = {ASSET_TAGS = (); }; };
-		22FE93791BD98331004493B1 /* DRPictureCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93781BD98331004493B1 /* DRPictureCell.m */; settings = {ASSET_TAGS = (); }; };
-		22FE937C1BD98F3C004493B1 /* DRAPIUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE937B1BD98F3C004493B1 /* DRAPIUtility.m */; settings = {ASSET_TAGS = (); }; };
+		22FE93711BD97782004493B1 /* DRCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93701BD97782004493B1 /* DRCollectionViewController.m */; };
+		22FE93731BD978C4004493B1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22FE93721BD978C4004493B1 /* Assets.xcassets */; };
+		22FE93791BD98331004493B1 /* DRPictureCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE93781BD98331004493B1 /* DRPictureCell.m */; };
+		22FE937C1BD98F3C004493B1 /* DRAPIUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 22FE937B1BD98F3C004493B1 /* DRAPIUtility.m */; };
+		98F99F451C346B292E18B282 /* libPods-JetChallengeNSB.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB437B112F435AE42329BCC1 /* libPods-JetChallengeNSB.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,9 @@
 		22FE93781BD98331004493B1 /* DRPictureCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DRPictureCell.m; sourceTree = "<group>"; };
 		22FE937A1BD98F3C004493B1 /* DRAPIUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DRAPIUtility.h; sourceTree = "<group>"; };
 		22FE937B1BD98F3C004493B1 /* DRAPIUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DRAPIUtility.m; sourceTree = "<group>"; };
+		B8288461F5B9F35A637551D2 /* Pods-JetChallengeNSB.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JetChallengeNSB.release.xcconfig"; path = "Pods/Target Support Files/Pods-JetChallengeNSB/Pods-JetChallengeNSB.release.xcconfig"; sourceTree = "<group>"; };
+		E335813B848B9E0690C3E896 /* Pods-JetChallengeNSB.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JetChallengeNSB.debug.xcconfig"; path = "Pods/Target Support Files/Pods-JetChallengeNSB/Pods-JetChallengeNSB.debug.xcconfig"; sourceTree = "<group>"; };
+		EB437B112F435AE42329BCC1 /* libPods-JetChallengeNSB.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-JetChallengeNSB.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98F99F451C346B292E18B282 /* libPods-JetChallengeNSB.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +92,8 @@
 				22FE93551BD97694004493B1 /* JetChallengeNSBTests */,
 				22FE93601BD97694004493B1 /* JetChallengeNSBUITests */,
 				22FE933A1BD97694004493B1 /* Products */,
+				3EDAB4EAF918DDFCAFCBA91F /* Pods */,
+				3CA1FD683B22668D5DE13B80 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -144,6 +151,23 @@
 			path = JetChallengeNSBUITests;
 			sourceTree = "<group>";
 		};
+		3CA1FD683B22668D5DE13B80 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EB437B112F435AE42329BCC1 /* libPods-JetChallengeNSB.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3EDAB4EAF918DDFCAFCBA91F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E335813B848B9E0690C3E896 /* Pods-JetChallengeNSB.debug.xcconfig */,
+				B8288461F5B9F35A637551D2 /* Pods-JetChallengeNSB.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -151,9 +175,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 22FE93661BD97694004493B1 /* Build configuration list for PBXNativeTarget "JetChallengeNSB" */;
 			buildPhases = (
+				10FEE32DF5ED2A606FF35C36 /* Check Pods Manifest.lock */,
 				22FE93351BD97694004493B1 /* Sources */,
 				22FE93361BD97694004493B1 /* Frameworks */,
 				22FE93371BD97694004493B1 /* Resources */,
+				7E4AD5BC644ABA9CAF9E7797 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -211,6 +237,7 @@
 				TargetAttributes = {
 					22FE93381BD97694004493B1 = {
 						CreatedOnToolsVersion = 7.0.1;
+						DevelopmentTeam = 3KR65ZULS9;
 					};
 					22FE93511BD97694004493B1 = {
 						CreatedOnToolsVersion = 7.0.1;
@@ -266,6 +293,39 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		10FEE32DF5ED2A606FF35C36 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		7E4AD5BC644ABA9CAF9E7797 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-JetChallengeNSB/Pods-JetChallengeNSB-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		22FE93351BD97694004493B1 /* Sources */ = {
@@ -396,8 +456,10 @@
 		};
 		22FE93671BD97694004493B1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E335813B848B9E0690C3E896 /* Pods-JetChallengeNSB.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = JetChallengeNSB/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.self.JetChallengeNSB;
@@ -407,8 +469,10 @@
 		};
 		22FE93681BD97694004493B1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B8288461F5B9F35A637551D2 /* Pods-JetChallengeNSB.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = JetChallengeNSB/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.self.JetChallengeNSB;
@@ -483,6 +547,7 @@
 				22FE93681BD97694004493B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		22FE93691BD97694004493B1 /* Build configuration list for PBXNativeTarget "JetChallengeNSBTests" */ = {
 			isa = XCConfigurationList;
@@ -491,6 +556,7 @@
 				22FE936B1BD97694004493B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		22FE936C1BD97694004493B1 /* Build configuration list for PBXNativeTarget "JetChallengeNSBUITests" */ = {
 			isa = XCConfigurationList;
@@ -499,6 +565,7 @@
 				22FE936E1BD97694004493B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -8,11 +8,14 @@
 
 #import "DRCollectionViewController.h"
 #import "DRPictureCell.h"
+#import "DRAPIUtility.h"
 
-@interface DRCollectionViewController ()<UIGestureRecognizerDelegate>
+@interface DRCollectionViewController ()<UIGestureRecognizerDelegate, UIScrollViewDelegate>
 @property (nonatomic, strong) NSArray *pictureArray;
+@property (nonatomic, strong) NSMutableDictionary *images;
 
 @end
+//TODO: Make it accessible
 
 @implementation DRCollectionViewController
 {
@@ -35,32 +38,36 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //accessibility
+    [self.collectionView setAccessibilityIdentifier:@"Image List"];
+    [self.collectionView setAccessibilityLabel:@"Image List"];
+    [self setAccessibilityLabel:@"Image List Controller"];
     
     //setup long gesture for reordering
     UILongPressGestureRecognizer *longPressGesture =[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     [longPressGesture setDelegate:self.collectionView];//?
     [self.collectionView addGestureRecognizer:longPressGesture];
-    
 
-    //
-    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
-    [flowLayout setMinimumInteritemSpacing:20];
-    [flowLayout setMinimumLineSpacing:20];
-
-    
     
     // Register cell classes
     [self.collectionView registerClass:[DRPictureCell class] forCellWithReuseIdentifier:reuseIdentifier];
     
     
+    self.images = [[NSMutableDictionary alloc] init];
+    DRAPIUtility *pugapi = [[DRAPIUtility alloc] init];
+    
+    [pugapi getImagesCount:@100 imageBlock:^(UIImage *image, NSIndexPath *ip) {
+        [self.images setObject:image forKey:ip];
+        [self.collectionView reloadRowsAtIndexPaths:@[ip] withRowAnimation:UITableViewRowAnimationAutomatic];
+    } completionBlock:nil];
     self.title = @"Jet.com Challenge";
-    self.pictureArray = @[
-                          [UIImage imageNamed:@"albumCover"],
-                          [UIImage imageNamed:@"albumCover2"],
-                          [UIImage imageNamed:@"images-albums-Plushgoolash_-_Chin25_Soup_Tennis_-_20110716151050790.w_290.h_290.m_crop.a_center.v_top"],
-                          [UIImage imageNamed:@"my gravatar"],
-                          [UIImage imageNamed:@"Screen Shot 2015-07-01 at 10.08.11 AM"],
-                          [UIImage imageNamed:@"waze"]];
+//    self.pictureArray = @[
+//                          [UIImage imageNamed:@"albumCover"],
+//                          [UIImage imageNamed:@"albumCover2"],
+//                          [UIImage imageNamed:@"images-albums-Plushgoolash_-_Chin25_Soup_Tennis_-_20110716151050790.w_290.h_290.m_crop.a_center.v_top"],
+//                          [UIImage imageNamed:@"my gravatar"],
+//                          [UIImage imageNamed:@"Screen Shot 2015-07-01 at 10.08.11 AM"],
+//                          [UIImage imageNamed:@"waze"]];
     self.collectionView.backgroundColor = [UIColor whiteColor];
 }
 
@@ -94,36 +101,26 @@ static NSString * const reuseIdentifier = @"Cell";
     // Dispose of any resources that can be recreated.
 }
 
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
-
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     
-    return self.pictureArray.count/3;
+    return 1;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    return 3;
+    return self.pictureArray.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     DRPictureCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
-    NSUInteger adjustedIndex = indexPath.section*3 + indexPath.row;
-    // Configure the cell
-    cell.backgroundColor = [UIColor lightGrayColor];
-    cell.imageView.image = self.pictureArray[adjustedIndex];
+
+    [self configureCell:cell forIndexPath:indexPath];
+
     return cell;
 }
+
 
 -(void)collectionView:(UICollectionView *)collectionView moveItemAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath{
     
@@ -204,10 +201,8 @@ static NSString * const reuseIdentifier = @"Cell";
 //    
 //}
 -(CGSize)collectionView:(UICollectionView*)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(nonnull NSIndexPath *)indexPath{
-    //    NSUInteger adjustedIndex = indexPath.section*3 + indexPath.row;
-    //    UIImage *image = self.pictureArray[adjustedIndex];
-    //    CGSize imageSize = image.size;
-    if (indexPath.row == 0) {
+
+    if (indexPath.row % 3 == 0) {
         return CGSizeMake(300, 300);
     }
     
@@ -215,36 +210,64 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 -(UIEdgeInsets)collectionView: (UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
     
-//    CGFloat itemWidth =332.0;
-//    //((UICollectionViewFlowLayout * )collectionViewLayout).itemSize.width;
+    return UIEdgeInsetsMake(10, 20, 20, 10);
+////    CGFloat itemWidth =332.0;
+////    //((UICollectionViewFlowLayout * )collectionViewLayout).itemSize.width;
+////    
+////    NSInteger numberOfCells = self.view.frame.size.width / itemWidth;
+////    NSInteger edgeInsets = (self.view.frame.size.width - (numberOfCells * itemWidth)) / (numberOfCells + 1);
+////    
+////    return UIEdgeInsetsMake(10, edgeInsets, 10, edgeInsets);
+////    NSInteger cellCount = [collectionView.dataSource collectionView:collectionView numberOfItemsInSection:section];
+////    if( cellCount >0 )
+////    {
+////        CGFloat cellWidth = ((UICollectionViewFlowLayout*)collectionViewLayout).itemSize.width+((UICollectionViewFlowLayout*)collectionViewLayout).minimumInteritemSpacing;
+////        CGFloat totalCellWidth = cellWidth*cellCount;
+////        CGFloat contentWidth = collectionView.frame.size.width-collectionView.contentInset.left-collectionView.contentInset.right;
+////        if( totalCellWidth<contentWidth )
+////        {
+////            CGFloat padding = (contentWidth - totalCellWidth) / 2.0;
+////            return UIEdgeInsetsMake(0, padding, 0, padding);
+////        }
+////    }
+////    return UIEdgeInsetsZero;
+////    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
+////    NSInteger numberOfItems = [collectionView numberOfItemsInSection:0];
+////    CGFloat combinedItemWidth = (numberOfItems * flowLayout.itemSize.width) + ((numberOfItems - 1) * flowLayout.minimumInteritemSpacing);
+////    CGFloat padding = (collectionView.frame.size.width - combinedItemWidth) / 2;
+////    
+////    return UIEdgeInsetsMake(0, padding, 0, padding);
 //    
-//    NSInteger numberOfCells = self.view.frame.size.width / itemWidth;
-//    NSInteger edgeInsets = (self.view.frame.size.width - (numberOfCells * itemWidth)) / (numberOfCells + 1);
-//    
-//    return UIEdgeInsetsMake(10, edgeInsets, 10, edgeInsets);
-//    NSInteger cellCount = [collectionView.dataSource collectionView:collectionView numberOfItemsInSection:section];
-//    if( cellCount >0 )
-//    {
-//        CGFloat cellWidth = ((UICollectionViewFlowLayout*)collectionViewLayout).itemSize.width+((UICollectionViewFlowLayout*)collectionViewLayout).minimumInteritemSpacing;
-//        CGFloat totalCellWidth = cellWidth*cellCount;
-//        CGFloat contentWidth = collectionView.frame.size.width-collectionView.contentInset.left-collectionView.contentInset.right;
-//        if( totalCellWidth<contentWidth )
-//        {
-//            CGFloat padding = (contentWidth - totalCellWidth) / 2.0;
-//            return UIEdgeInsetsMake(0, padding, 0, padding);
-//        }
-//    }
-//    return UIEdgeInsetsZero;
-    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
-    NSInteger numberOfItems = [collectionView numberOfItemsInSection:0];
-    CGFloat combinedItemWidth = (numberOfItems * flowLayout.itemSize.width) + ((numberOfItems - 1) * flowLayout.minimumInteritemSpacing);
-    CGFloat padding = (collectionView.frame.size.width - combinedItemWidth) / 2;
-    
-    return UIEdgeInsetsMake(0, padding, 0, padding);
-    
-
+//
 }
 
+#pragma mark - ScrollView Delegate
+
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollview {
+    
+    // Calculate where the collection view should be at the right-hand end item
+    float contentOffsetWhenFullyScrolledRight = self.collectionView.frame.size.width * ([self.pictureArray count] -1);
+    
+    if (scrollview.contentOffset.x == contentOffsetWhenFullyScrolledRight) {
+        
+        // user is scrolling to the right from the last item to the 'fake' item 1.
+        // reposition offset to show the 'real' item 1 at the left-hand end of the collection view
+        
+        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
+        
+        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+        
+    } else if (scrollview.contentOffset.x == 0)  {
+        
+        // user is scrolling to the left from the first item to the fake 'item N'.
+        // reposition offset to show the 'real' item N at the right end end of the collection view
+        
+        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.pictureArray count] -2) inSection:0];
+        
+        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+        
+    }
+}
 
 #pragma mark - Miscellaneous
 - (void)fullScreenImageViewTapped:(UIGestureRecognizer *)gestureRecognizer {
@@ -263,5 +286,15 @@ static NSString * const reuseIdentifier = @"Cell";
 {
     [fullScreenImageView removeFromSuperview];
     fullScreenImageView = nil;
+}
+- (void)configureCell:(DRPictureCell *)cell forIndexPath:(NSIndexPath *)indexPath
+{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+
+        if (self.images[indexPath])
+        {
+            cell.imageView.image = self.images[indexPath];
+        }
+    }];
 }
 @end

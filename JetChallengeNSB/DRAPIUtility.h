@@ -7,7 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface DRAPIUtility : NSObject
-
+- (void)getImagesCount:(NSNumber*)count
+            imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock completionBlock:(void (^)())completion;
 @end
