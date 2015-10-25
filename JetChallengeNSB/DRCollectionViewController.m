@@ -10,6 +10,7 @@
 #import "DRPictureCell.h"
 #import "DRAPIUtility.h"
 
+
 @interface DRCollectionViewController ()<UIGestureRecognizerDelegate, UIScrollViewDelegate>
 @property (nonatomic, strong) NSArray *pictureArray;
 @property (nonatomic, strong) NSMutableDictionary *images;
@@ -38,40 +39,52 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    //accessibility
+
     [self.collectionView setAccessibilityIdentifier:@"Image List"];
     [self.collectionView setAccessibilityLabel:@"Image List"];
     [self setAccessibilityLabel:@"Image List Controller"];
-    
-    //setup long gesture for reordering
-    UILongPressGestureRecognizer *longPressGesture =[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-    [longPressGesture setDelegate:self.collectionView];//?
-    [self.collectionView addGestureRecognizer:longPressGesture];
+  
 
-    
-    // Register cell classes
     [self.collectionView registerClass:[DRPictureCell class] forCellWithReuseIdentifier:reuseIdentifier];
     
-    
+
     self.images = [[NSMutableDictionary alloc] init];
-    DRAPIUtility *pugapi = [[DRAPIUtility alloc] init];
-    
-    [pugapi getImagesCount:@100 imageBlock:^(UIImage *image, NSIndexPath *ip) {
-        [self.images setObject:image forKey:ip];
-        [self.collectionView reloadRowsAtIndexPaths:@[ip] withRowAnimation:UITableViewRowAnimationAutomatic];
-    } completionBlock:nil];
+
     self.title = @"Jet.com Challenge";
-//    self.pictureArray = @[
-//                          [UIImage imageNamed:@"albumCover"],
-//                          [UIImage imageNamed:@"albumCover2"],
-//                          [UIImage imageNamed:@"images-albums-Plushgoolash_-_Chin25_Soup_Tennis_-_20110716151050790.w_290.h_290.m_crop.a_center.v_top"],
-//                          [UIImage imageNamed:@"my gravatar"],
-//                          [UIImage imageNamed:@"Screen Shot 2015-07-01 at 10.08.11 AM"],
-//                          [UIImage imageNamed:@"waze"]];
+    
+    [self setupLongGesture];
+    
+//temporary for testing pix until api is setup
+    self.pictureArray = @[
+                          [UIImage imageNamed:@"alg-woodlawn-subway-jpg"],
+                          [UIImage imageNamed:@"albumCover"],
+                          [UIImage imageNamed:@"albumCover2"],
+                          [UIImage imageNamed:@"images-albums-Plushgoolash_-_Chin25_Soup_Tennis_-_20110716151050790.w_290.h_290.m_crop.a_center.v_top"],
+                          [UIImage imageNamed:@"my gravatar"],
+                          [UIImage imageNamed:@"Screen Shot 2015-07-01 at 10.08.11 AM"],
+                          [UIImage imageNamed:@"waze"],
+                          [UIImage imageNamed:@"bedefordsubway"],
+                          [UIImage imageNamed:@"machine_2"],
+                          [UIImage imageNamed:@"subwayEntrance"],
+                          [UIImage imageNamed:@"subwayEntrace2"]
+                          ];
+    
     self.collectionView.backgroundColor = [UIColor whiteColor];
 }
 
 
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Gestures & Actions
+-(void)setupLongGesture{
+    UILongPressGestureRecognizer *longPressGesture =[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    [longPressGesture setDelegate:self.collectionView];//?
+    [self.collectionView addGestureRecognizer:longPressGesture];
+
+}
 -(void)handleLongPress:(UIGestureRecognizer *) gesture {
     CGPoint p = [gesture locationInView:self.collectionView];
     NSIndexPath *selectedIndexPath = [self.collectionView indexPathForItemAtPoint: p];
@@ -96,11 +109,15 @@ static NSString * const reuseIdentifier = @"Cell";
     }
     
 }
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+-(void)setupTapForCell:(DRPictureCell *) cell {
+    originalImageView = cell.imageView;
+    fullScreenImageView = [[UIImageView alloc] init];
+    [fullScreenImageView setContentMode:UIViewContentModeScaleAspectFit];
+    fullScreenImageView.image = [originalImageView image];
 }
+-(void)handleTapToZoom:(UITapGestureRecognizer* )gesture{
 
+}
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
@@ -115,8 +132,9 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     DRPictureCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    cell.imageView.image = self.pictureArray[indexPath.row];
 
-    [self configureCell:cell forIndexPath:indexPath];
+//    [self configureCell:cell forIndexPath:indexPath];
 
     return cell;
 }
@@ -161,10 +179,9 @@ static NSString * const reuseIdentifier = @"Cell";
     
     
     DRPictureCell *cell = (DRPictureCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
-    originalImageView = cell.imageView;
-    fullScreenImageView = [[UIImageView alloc] init];
-    [fullScreenImageView setContentMode:UIViewContentModeScaleAspectFit];
-    fullScreenImageView.image = [originalImageView image];
+    
+    [self setupTapForCell:cell];
+
     
     CGRect tempPoint = CGRectMake(originalImageView.center.x, originalImageView.center.y, 0, 0);
     
@@ -269,7 +286,7 @@ static NSString * const reuseIdentifier = @"Cell";
     }
 }
 
-#pragma mark - Miscellaneous
+#pragma mark - Tap To Zoom
 - (void)fullScreenImageViewTapped:(UIGestureRecognizer *)gestureRecognizer {
     
     CGRect point=[self.view convertRect:originalImageView.bounds fromView:originalImageView];

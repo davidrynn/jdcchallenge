@@ -2,7 +2,8 @@
 # platform :ios, '7.0'
 
 target 'JetChallengeNSB' do
-pod "AFNetworking"
+pod 'AFNetworking'
+
 end
 
 target 'JetChallengeNSBTests' do
