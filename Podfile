@@ -3,6 +3,7 @@
 
 target 'JetChallengeNSB' do
 pod 'AFNetworking'
+pod 'AFOAuth2Manager'
 
 end
 

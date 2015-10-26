@@ -8,14 +8,34 @@
 
 #import "DRAPIUtility.h"
 #import <AFNetworking.h>
+#import <AFOAuth2Manager.h>
 
 #import "DRKeys.h"
 
 @implementation DRAPIUtility
+
+-(void)oauth{
+    NSURL *baseURL = [NSURL URLWithString:@"https://api.instagram.com/"];
+    AFOAuth2Manager *OAuth2Manager =
+    [[AFOAuth2Manager alloc] initWithBaseURL:baseURL
+                                    clientID:CLIENT_ID
+                                      secret:CLIENT_SECRET];
+    
+    [OAuth2Manager authenticateUsingOAuthWithURLString:@"/oauth/authorize"
+                                              username:@"username"
+                                              password:@"password"
+                                                 scope:@"email"
+                                               success:^(AFOAuthCredential *credential) {
+                                                   NSLog(@"Token: %@", credential.accessToken);
+                                               }
+                                               failure:^(NSError *error) {
+                                                   NSLog(@"Error: %@", error);
+                                               }];
+
+}
 - (void)getImagesCount:(NSNumber*)count
             imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock completionBlock:(void (^)())completion
 {
-    
 
 //    NSOperationQueue* queue = [[NSOperationQueue alloc] init];
 //    queue.maxConcurrentOperationCount = 10;
@@ -32,6 +52,7 @@
 //        NSURLRequest* request = [NSURLRequest requestWithURL:instagramImagesURL];
 //        AFHTTPRequestOperation* op =
 //        [[AFHTTPRequestOperation alloc] initWithRequest:request];
+//    
 //        
 //        op.responseSerializer = [AFJSONResponseSerializer serializer];
 //        

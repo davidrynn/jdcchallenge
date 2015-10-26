@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 
 @interface DRAPIUtility : NSObject
+-(void)oauth;
 - (void)getImagesCount:(NSNumber*)count
             imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock completionBlock:(void (^)())completion;
 @end

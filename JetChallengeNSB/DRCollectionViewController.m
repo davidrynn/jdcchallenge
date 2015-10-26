@@ -55,7 +55,16 @@ static NSString * const reuseIdentifier = @"Cell";
     [self setupLongGesture];
     
 //temporary for testing pix until api is setup
-    self.pictureArray = @[
+    [self setupDataForCollectionView];
+    
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+    
+    self.collectionView.pagingEnabled = YES;
+}
+-(void)setupDataForCollectionView {
+    
+    // Create the original set of data
+    NSArray *originalArray = @[
                           [UIImage imageNamed:@"alg-woodlawn-subway-jpg"],
                           [UIImage imageNamed:@"albumCover"],
                           [UIImage imageNamed:@"albumCover2"],
@@ -69,9 +78,24 @@ static NSString * const reuseIdentifier = @"Cell";
                           [UIImage imageNamed:@"subwayEntrace2"]
                           ];
     
-    self.collectionView.backgroundColor = [UIColor whiteColor];
+    // Grab references to the first and last items
+    // They're typed as id so you don't need to worry about what kind
+    // of objects the originalArray is holding
+    UIImage *firstItem = originalArray[0];
+    UIImage *lastItem = [originalArray lastObject];
+    
+    NSMutableArray *workingArray = [originalArray mutableCopy];
+    
+    // Add the copy of the last item to the beginning
+    [workingArray insertObject:lastItem atIndex:0];
+    
+    // Add the copy of the first item to the end
+    [workingArray addObject:firstItem];
+    
+    // Update the collection view's data source property
+    self.pictureArray = [NSArray arrayWithArray:workingArray];
+    
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -88,9 +112,6 @@ static NSString * const reuseIdentifier = @"Cell";
 -(void)handleLongPress:(UIGestureRecognizer *) gesture {
     CGPoint p = [gesture locationInView:self.collectionView];
     NSIndexPath *selectedIndexPath = [self.collectionView indexPathForItemAtPoint: p];
-    //TODO: create swap if in different section otherwise below
-    //so that if it's in thesame section just reorder, if it's in different section
-    //then swap.
     
     switch (gesture.state) {
         case UIGestureRecognizerStateBegan:
@@ -175,9 +196,7 @@ static NSString * const reuseIdentifier = @"Cell";
  }
  */
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    //TODO: Select item -> tap to zoom
-    
-    
+
     DRPictureCell *cell = (DRPictureCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     
     [self setupTapForCell:cell];
@@ -262,19 +281,27 @@ static NSString * const reuseIdentifier = @"Cell";
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollview {
     
-    // Calculate where the collection view should be at the right-hand end item
-    float contentOffsetWhenFullyScrolledRight = self.collectionView.frame.size.width * ([self.pictureArray count] -1);
+    // Calculate where the collection view should be at the bottom end item
+    //take number of 300x300 cells plus 100x100 cells minus one screen length
+    //11 pix 3big, 8 small = 900 + 800
+    NSUInteger bigPix = (self.pictureArray.count)/3;
+    NSUInteger smallpix = (self.pictureArray.count)*2/3;
+    NSLog(@"big pix = %lu, small pix = %lu", (unsigned long)bigPix, smallpix);
     
-    if (scrollview.contentOffset.x == contentOffsetWhenFullyScrolledRight) {
+    float contentOffsetWhenFullyScrolledBottom = 300*bigPix+100*smallpix-self.collectionView.frame.size.height;
+    NSLog(@"contentOffsetWhen bottom = %f", contentOffsetWhenFullyScrolledBottom);
+    NSLog(@"scollview.contentOffset.y = %f", scrollview.contentOffset.y);
+    if (scrollview.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
         
         // user is scrolling to the right from the last item to the 'fake' item 1.
         // reposition offset to show the 'real' item 1 at the left-hand end of the collection view
         
         NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
         
-        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        NSLog(@"triggered scroll in equal contentoffset");
         
-    } else if (scrollview.contentOffset.x == 0)  {
+    } else if (scrollview.contentOffset.y == 0)  {
         
         // user is scrolling to the left from the first item to the fake 'item N'.
         // reposition offset to show the 'real' item N at the right end end of the collection view
@@ -282,6 +309,7 @@ static NSString * const reuseIdentifier = @"Cell";
         NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.pictureArray count] -2) inSection:0];
         
         [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+                NSLog(@"triggered scroll in equal 0");
         
     }
 }
