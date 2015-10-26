@@ -11,9 +11,13 @@
 #import "DRAPIUtility.h"
 
 
+
+
 @interface DRCollectionViewController ()<UIGestureRecognizerDelegate, UIScrollViewDelegate>
 @property (nonatomic, strong) NSArray *pictureArray;
 @property (nonatomic, strong) NSMutableDictionary *images;
+@property (strong, nonatomic) NSIndexPath *indexPathForDeviceOrientation;
+
 
 @end
 //TODO: Make it accessible
@@ -31,7 +35,6 @@ static NSString * const reuseIdentifier = @"Cell";
 -(instancetype) init{
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.itemSize =CGSizeMake(106.0, 106.0);
     self = [super initWithCollectionViewLayout:layout];
     
     return self;
@@ -60,6 +63,9 @@ static NSString * const reuseIdentifier = @"Cell";
     self.collectionView.backgroundColor = [UIColor whiteColor];
     
     self.collectionView.pagingEnabled = YES;
+
+
+
 }
 -(void)setupDataForCollectionView {
     
@@ -75,12 +81,21 @@ static NSString * const reuseIdentifier = @"Cell";
                           [UIImage imageNamed:@"bedefordsubway"],
                           [UIImage imageNamed:@"machine_2"],
                           [UIImage imageNamed:@"subwayEntrance"],
+                          [UIImage imageNamed:@"subwayEntrace2"],
+                          [UIImage imageNamed:@"alg-woodlawn-subway-jpg"],
+                          [UIImage imageNamed:@"albumCover"],
+                          [UIImage imageNamed:@"albumCover2"],
+                          [UIImage imageNamed:@"images-albums-Plushgoolash_-_Chin25_Soup_Tennis_-_20110716151050790.w_290.h_290.m_crop.a_center.v_top"],
+                          [UIImage imageNamed:@"my gravatar"],
+                          [UIImage imageNamed:@"Screen Shot 2015-07-01 at 10.08.11 AM"],
+                          [UIImage imageNamed:@"waze"],
+                          [UIImage imageNamed:@"bedefordsubway"],
+                          [UIImage imageNamed:@"machine_2"],
+                          [UIImage imageNamed:@"subwayEntrance"],
                           [UIImage imageNamed:@"subwayEntrace2"]
                           ];
     
     // Grab references to the first and last items
-    // They're typed as id so you don't need to worry about what kind
-    // of objects the originalArray is holding
     UIImage *firstItem = originalArray[0];
     UIImage *lastItem = [originalArray lastObject];
     
@@ -137,8 +152,10 @@ static NSString * const reuseIdentifier = @"Cell";
     fullScreenImageView.image = [originalImageView image];
 }
 -(void)handleTapToZoom:(UITapGestureRecognizer* )gesture{
-
+//TODO: refactor into this method
 }
+
+
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
@@ -233,85 +250,83 @@ static NSString * const reuseIdentifier = @"Cell";
 
 #pragma mark - UICollectionViewDelegateFlowLayout
 
-//-(BOOL)collectionView:(UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section{
-//    
-//}
--(CGSize)collectionView:(UICollectionView*)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(nonnull NSIndexPath *)indexPath{
 
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return 1.0;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return 30.0;
+}
+-(CGSize)collectionView:(UICollectionView*)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(nonnull NSIndexPath *)indexPath{
+    CGFloat frameWidth = self.collectionView.frame.size.width;
     if (indexPath.row % 3 == 0) {
-        return CGSizeMake(300, 300);
+        return CGSizeMake(frameWidth/3, frameWidth/3);
     }
     
-    return CGSizeMake(100, 100);
+    return CGSizeMake(frameWidth/5, frameWidth/5);
 }
 -(UIEdgeInsets)collectionView: (UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
     
-    return UIEdgeInsetsMake(10, 20, 20, 10);
-////    CGFloat itemWidth =332.0;
-////    //((UICollectionViewFlowLayout * )collectionViewLayout).itemSize.width;
-////    
-////    NSInteger numberOfCells = self.view.frame.size.width / itemWidth;
-////    NSInteger edgeInsets = (self.view.frame.size.width - (numberOfCells * itemWidth)) / (numberOfCells + 1);
-////    
-////    return UIEdgeInsetsMake(10, edgeInsets, 10, edgeInsets);
-////    NSInteger cellCount = [collectionView.dataSource collectionView:collectionView numberOfItemsInSection:section];
-////    if( cellCount >0 )
-////    {
-////        CGFloat cellWidth = ((UICollectionViewFlowLayout*)collectionViewLayout).itemSize.width+((UICollectionViewFlowLayout*)collectionViewLayout).minimumInteritemSpacing;
-////        CGFloat totalCellWidth = cellWidth*cellCount;
-////        CGFloat contentWidth = collectionView.frame.size.width-collectionView.contentInset.left-collectionView.contentInset.right;
-////        if( totalCellWidth<contentWidth )
-////        {
-////            CGFloat padding = (contentWidth - totalCellWidth) / 2.0;
-////            return UIEdgeInsetsMake(0, padding, 0, padding);
-////        }
-////    }
-////    return UIEdgeInsetsZero;
-////    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
-////    NSInteger numberOfItems = [collectionView numberOfItemsInSection:0];
-////    CGFloat combinedItemWidth = (numberOfItems * flowLayout.itemSize.width) + ((numberOfItems - 1) * flowLayout.minimumInteritemSpacing);
-////    CGFloat padding = (collectionView.frame.size.width - combinedItemWidth) / 2;
-////    
-////    return UIEdgeInsetsMake(0, padding, 0, padding);
-//    
-//
+    return UIEdgeInsetsMake(10, 10, 10, 10);
+
 }
+#pragma mark - UIInterfaceOrientation
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    _indexPathForDeviceOrientation = [[self.collectionView indexPathsForVisibleItems] firstObject];
+    [[self.collectionView collectionViewLayout] invalidateLayout];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    [self.collectionView scrollToItemAtIndexPath:_indexPathForDeviceOrientation atScrollPosition:UICollectionViewScrollPositionLeft animated:YES];
+}
+
 
 #pragma mark - ScrollView Delegate
 
--(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollview {
-    
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
     // Calculate where the collection view should be at the bottom end item
     //take number of 300x300 cells plus 100x100 cells minus one screen length
     //11 pix 3big, 8 small = 900 + 800
-    NSUInteger bigPix = (self.pictureArray.count)/3;
-    NSUInteger smallpix = (self.pictureArray.count)*2/3;
-    NSLog(@"big pix = %lu, small pix = %lu", (unsigned long)bigPix, smallpix);
     
-    float contentOffsetWhenFullyScrolledBottom = 300*bigPix+100*smallpix-self.collectionView.frame.size.height;
+    NSUInteger numberOfBigPix = (self.pictureArray.count-1)/3;
+
+    NSLog(@"number of big pix = %lu", (unsigned long)numberOfBigPix);
+    NSLog(@"collectionviewitemsizeheight = %f", self.collectionViewLayout.collectionViewContentSize.height);
+    
+    float contentOffsetWhenFullyScrolledBottom = (self.collectionView.frame.size.width/3 + self.collectionView.layoutMargins.top)*numberOfBigPix-self.collectionView.frame.size.height;
     NSLog(@"contentOffsetWhen bottom = %f", contentOffsetWhenFullyScrolledBottom);
-    NSLog(@"scollview.contentOffset.y = %f", scrollview.contentOffset.y);
-    if (scrollview.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
+    NSLog(@"scollview.contentOffset.y = %f", scrollView.contentOffset.y);
+    if (scrollView.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
         
-        // user is scrolling to the right from the last item to the 'fake' item 1.
-        // reposition offset to show the 'real' item 1 at the left-hand end of the collection view
+        // user is scrolling to the bottom from the last item to the 'fake' item 1.
+        // reposition offset to show the 'real' item 1 at the top of the collection view
         
         NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
         
         [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
         NSLog(@"triggered scroll in equal contentoffset");
         
-    } else if (scrollview.contentOffset.y == 0)  {
+    } else if (scrollView.contentOffset.y == 0)  {
         
-        // user is scrolling to the left from the first item to the fake 'item N'.
-        // reposition offset to show the 'real' item N at the right end end of the collection view
+        // user is scrolling to the top from the first item to the fake 'item N'.
+        // reposition offset to show the 'real' item N at the bottom end of the collection view
         
         NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.pictureArray count] -2) inSection:0];
         
         [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
-                NSLog(@"triggered scroll in equal 0");
+        NSLog(@"triggered scroll in equal 0");
         
     }
+
+}
+
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollview {
+    
+
 }
 
 #pragma mark - Tap To Zoom

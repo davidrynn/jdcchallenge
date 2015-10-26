@@ -88,6 +88,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2264E1A11BDE810300A70C21 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				22FE936F1BD97782004493B1 /* DRCollectionViewController.h */,
+				22FE93701BD97782004493B1 /* DRCollectionViewController.m */,
+			);
+			name = "View Controllers";
+			sourceTree = "<group>";
+		};
 		22FE93301BD97694004493B1 = {
 			isa = PBXGroup;
 			children = (
@@ -119,8 +128,7 @@
 				2264E1931BDC24A900A70C21 /* DRKeys.m */,
 				22FE93771BD98331004493B1 /* DRPictureCell.h */,
 				22FE93781BD98331004493B1 /* DRPictureCell.m */,
-				22FE936F1BD97782004493B1 /* DRCollectionViewController.h */,
-				22FE93701BD97782004493B1 /* DRCollectionViewController.m */,
+				2264E1A11BDE810300A70C21 /* View Controllers */,
 				22FE933C1BD97694004493B1 /* Supporting Files */,
 			);
 			path = JetChallengeNSB;

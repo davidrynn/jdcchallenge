@@ -12,7 +12,7 @@
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
+    self = [super initWithFrame:CGRectMake(0, 0, frame.size.width/2, frame.size.height/2)];
     if (self) {
         self.imageView = [[UIImageView alloc] init];
         [self.contentView addSubview:self.imageView];
