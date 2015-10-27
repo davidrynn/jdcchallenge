@@ -10,15 +10,13 @@
 #import "DRPictureCell.h"
 #import "DRAPIUtility.h"
 
-
-
-
 @interface DRCollectionViewController ()<UIGestureRecognizerDelegate, UIScrollViewDelegate>
 @property (nonatomic, strong) NSArray *pictureArray;
 @property (nonatomic, strong) NSMutableDictionary *images;
 @property (nonatomic, strong) NSIndexPath *indexPathForDeviceOrientation;
 @property (nonatomic, strong) UIImageView *fullScreenImageView;
 @property (nonatomic, strong) UIImageView *originalImageView;
+@property (nonatomic) NSUInteger numberOfImages;
 
 @end
 //TODO: Make it accessible
@@ -26,7 +24,6 @@
 @implementation DRCollectionViewController
 
 static NSString * const reuseIdentifier = @"Cell";
-
 
 -(instancetype) init{
     
@@ -46,32 +43,26 @@ static NSString * const reuseIdentifier = @"Cell";
 
     [self.collectionView registerClass:[DRPictureCell class] forCellWithReuseIdentifier:reuseIdentifier];
     
-
-    self.images = [[NSMutableDictionary alloc] init];
-
     self.title = @"Jet.com Challenge";
     
     [self setupLongGesture];
-    
-//temporary for testing pix until api is setup
     [self setupDataForCollectionView];
     
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    
     self.collectionView.pagingEnabled = YES;
 
-
 }
+
 -(void)setupDataForCollectionView {
     
     self.images = [[NSMutableDictionary alloc] init];
     DRAPIUtility *instagramApi = [[DRAPIUtility alloc] init];
-    [instagramApi getImagesCount:@20 imageBlock:^(UIImage *image, NSIndexPath *indexPath) {
+    [instagramApi getImagesCount:@20 imageBlock:^(UIImage *image, NSIndexPath *indexPath, NSUInteger numberOfImages) {
         [self.images setObject:image forKey:indexPath];
+        self.numberOfImages = numberOfImages;
         [self.collectionView reloadData];
     } completionBlock:nil];
 
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -82,10 +73,11 @@ static NSString * const reuseIdentifier = @"Cell";
 #pragma mark - Gestures & Actions
 -(void)setupLongGesture{
     UILongPressGestureRecognizer *longPressGesture =[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-    [longPressGesture setDelegate:self.collectionView];//?
+  //  [longPressGesture setDelegate:self.collectionView];//?
     [self.collectionView addGestureRecognizer:longPressGesture];
 
 }
+
 -(void)handleLongPress:(UIGestureRecognizer *) gesture {
     CGPoint p = [gesture locationInView:self.collectionView];
     NSIndexPath *selectedIndexPath = [self.collectionView indexPathForItemAtPoint: p];
@@ -105,7 +97,6 @@ static NSString * const reuseIdentifier = @"Cell";
             [self.collectionView cancelInteractiveMovement];
             break;
     }
-    
 }
 
 -(void)setupTapForCell:(DRPictureCell *) cell {
@@ -119,7 +110,6 @@ static NSString * const reuseIdentifier = @"Cell";
 //TODO: refactor into this method
 }
 
-
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
@@ -129,7 +119,7 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    return 299;
+    return self.numberOfImages;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -223,18 +213,24 @@ static NSString * const reuseIdentifier = @"Cell";
     return 30.0;
 }
 -(CGSize)collectionView:(UICollectionView*)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(nonnull NSIndexPath *)indexPath{
+    
+    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
     CGFloat frameWidth = self.collectionView.frame.size.width;
+    CGFloat sectionInsetWidth = flowLayout.sectionInset.right +flowLayout.sectionInset.left;
+    CGFloat contentSectionWidth = self.collectionView.contentInset.left + self.collectionView.contentInset.right;
     if (indexPath.row % 3 == 0) {
-        return CGSizeMake(frameWidth, frameWidth);
+        CGFloat width = frameWidth - sectionInsetWidth - contentSectionWidth;
+        return CGSizeMake(width, width);
     }
+//    the item width must be less than the width of the UICollectionView minus the section insets left and right values, minus the content insets left and right values.
     
     return CGSizeMake(frameWidth/3, frameWidth/3);
 }
--(UIEdgeInsets)collectionView: (UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
-    
-    return UIEdgeInsetsMake(10, 10, 10, 10);
-
-}
+//-(UIEdgeInsets)collectionView: (UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
+//    
+//    return UIEdgeInsetsMake(10, 10, 10, 10);
+//
+//}
 #pragma mark - UIInterfaceOrientation
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {

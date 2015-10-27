@@ -12,11 +12,11 @@
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:CGRectMake(0, 0, frame.size.width/2, frame.size.height/2)];
+    self = [super initWithFrame:frame];
     if (self) {
         self.imageView = [[UIImageView alloc] init];
         [self.contentView addSubview:self.imageView];
-        self.backgroundColor = [UIColor greenColor];
+        self.backgroundColor = [UIColor grayColor];
     }
     return self;
 }

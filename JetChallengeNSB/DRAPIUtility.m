@@ -15,9 +15,12 @@
 @implementation DRAPIUtility
 
 - (void)getImagesCount:(NSNumber*)count
-            imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock
+            imageBlock:(void (^)(UIImage *, NSIndexPath *, NSUInteger))imageBlock
        completionBlock:(void (^)())completion
 {
+    __block UIImage *placeholderImage = [UIImage imageNamed:@"jdc1.jpeg"];
+    __block NSURL *instagramImagesURL = [[NSURL alloc] init];
+    
     
     for (NSInteger i = 0; i < [count integerValue]; i++) {
         
@@ -28,8 +31,11 @@
         NSOperationQueue* imageQueue = [[NSOperationQueue alloc] init];
         imageQueue.maxConcurrentOperationCount = 10;
         
-        NSURL *instagramImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.instagram.com/v1/tags/jetdotcom/media/recent?client_id=%@", CLIENT_ID]];
-        
+        if (i<20) {
+                   instagramImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.instagram.com/v1/tags/jetdotcom/media/recent?client_id=%@", CLIENT_ID]];
+        }
+
+
         NSURLRequest* request = [NSURLRequest requestWithURL:instagramImagesURL];
         AFHTTPRequestOperation* operation =
         [[AFHTTPRequestOperation alloc] initWithRequest:request];
@@ -40,18 +46,26 @@
             
             NSDictionary* responseDictionary = (NSDictionary*)responseObject;
             
+//  DOESN"T WORK          //setup load
+//            if (i>0&&(i+1)%20==0) {
+//                instagramImagesURL = [NSURL URLWithString:responseDictionary[@"pagination"][@"next_url"] ];
+//            }
+            
             [imageQueue addOperationWithBlock:^{
                 
                 NSIndexPath* indexpath = [NSIndexPath indexPathForRow:i inSection:0];
-                NSLog(@"%@",responseDictionary[@"data"][i][@"images"][@"low_resolution"][@"url"]);
+                NSArray *dataArray =responseDictionary[@"data"];
+                NSLog(@"%@",dataArray[i][@"images"][@"low_resolution"][@"url"]);
+
                 NSData* imageData = [NSData dataWithContentsOfURL:
                                      [NSURL URLWithString:responseDictionary[@"data"][i][@"images"][@"low_resolution"][@"url"]]];
+                NSUInteger numberOfImages = dataArray.count;
                 UIImage* instagramImage = [UIImage imageWithData:imageData];
                 if (!instagramImage) {
-                    instagramImage = [UIImage imageNamed:@"jdc"];
+                    instagramImage = placeholderImage;
                 }
                 NSOperation *imageOp = [NSBlockOperation blockOperationWithBlock:^{
-                    imageBlock(instagramImage, indexpath);
+                    imageBlock(instagramImage, indexpath, numberOfImages);
                 }];
                 NSOperation *checkCompleteOp = [NSBlockOperation blockOperationWithBlock:^{
                     returnedCount++;

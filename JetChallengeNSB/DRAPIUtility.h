@@ -12,5 +12,5 @@
 @interface DRAPIUtility : NSObject
 
 - (void)getImagesCount:(NSNumber*)count
-            imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock completionBlock:(void (^)())completion;
+            imageBlock:(void (^)(UIImage *, NSIndexPath *, NSUInteger))imageBlock completionBlock:(void (^)())completion;
 @end
