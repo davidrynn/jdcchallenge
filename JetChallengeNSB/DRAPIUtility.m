@@ -14,15 +14,15 @@
 
 @implementation DRAPIUtility
 
-- (void)getImagesCount:(NSNumber*)count
+- (void)getImagesPage:(NSNumber*)pageNumber instagramURL: (NSURL *) url
             imageBlock:(void (^)(UIImage *, NSIndexPath *, NSUInteger))imageBlock
-       completionBlock:(void (^)())completion
+       completionBlock:(void (^)(NSURL*))completion
 {
     __block UIImage *placeholderImage = [UIImage imageNamed:@"jdc1.jpeg"];
     __block NSURL *instagramImagesURL = [[NSURL alloc] init];
     
-    
-    for (NSInteger i = 0; i < [count integerValue]; i++) {
+    //20 images at a time from api
+    for (NSInteger i = 0; i < 20; i++) {
         
         NSOperationQueue* queue = [[NSOperationQueue alloc] init];
         queue.maxConcurrentOperationCount = 10;
@@ -31,7 +31,7 @@
         NSOperationQueue* imageQueue = [[NSOperationQueue alloc] init];
         imageQueue.maxConcurrentOperationCount = 10;
         
-        if (i<20) {
+        if (pageNumber == 0) {
                    instagramImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.instagram.com/v1/tags/jetdotcom/media/recent?client_id=%@", CLIENT_ID]];
         }
 
@@ -53,12 +53,14 @@
             
             [imageQueue addOperationWithBlock:^{
                 
-                NSIndexPath* indexpath = [NSIndexPath indexPathForRow:i inSection:0];
+                NSIndexPath* indexpath = [NSIndexPath indexPathForRow:[pageNumber integerValue]*20+i inSection:0];
                 NSArray *dataArray =responseDictionary[@"data"];
                 NSLog(@"%@",dataArray[i][@"images"][@"low_resolution"][@"url"]);
 
                 NSData* imageData = [NSData dataWithContentsOfURL:
                                      [NSURL URLWithString:responseDictionary[@"data"][i][@"images"][@"low_resolution"][@"url"]]];
+                
+                //delete
                 NSUInteger numberOfImages = dataArray.count;
                 UIImage* instagramImage = [UIImage imageWithData:imageData];
                 if (!instagramImage) {
@@ -71,7 +73,7 @@
                     returnedCount++;
                     if (returnedCount==10) {
                         if (completion) {
-                            completion();
+                            completion([NSURL URLWithString:responseDictionary[@"pagination"][@"next_url"]]);
                         }
                     }
                 }];

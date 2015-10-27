@@ -16,7 +16,9 @@
 @property (nonatomic, strong) NSIndexPath *indexPathForDeviceOrientation;
 @property (nonatomic, strong) UIImageView *fullScreenImageView;
 @property (nonatomic, strong) UIImageView *originalImageView;
-@property (nonatomic) NSUInteger numberOfImages;
+@property (nonatomic, strong) UIVisualEffectView *effectView;
+@property (nonatomic) NSUInteger pageNumber;
+@property (nonatomic, strong) NSURL *nextURL;
 
 @end
 //TODO: Make it accessible
@@ -49,7 +51,9 @@ static NSString * const reuseIdentifier = @"Cell";
     [self setupDataForCollectionView];
     
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    self.collectionView.pagingEnabled = YES;
+    
+    self.pageNumber = 0;
+
 
 }
 
@@ -57,11 +61,12 @@ static NSString * const reuseIdentifier = @"Cell";
     
     self.images = [[NSMutableDictionary alloc] init];
     DRAPIUtility *instagramApi = [[DRAPIUtility alloc] init];
-    [instagramApi getImagesCount:@20 imageBlock:^(UIImage *image, NSIndexPath *indexPath, NSUInteger numberOfImages) {
+    [instagramApi getImagesPage:0 instagramURL:self.nextURL imageBlock:^(UIImage *image, NSIndexPath *indexPath, NSUInteger numberOfImages) {
         [self.images setObject:image forKey:indexPath];
-        self.numberOfImages = numberOfImages;
-        [self.collectionView reloadData];
-    } completionBlock:nil];
+        [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+    } completionBlock:^(NSURL *url) {
+        self.nextURL=url;
+    }];
 
 }
 
@@ -119,7 +124,7 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    return self.numberOfImages;
+    return 20;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -179,6 +184,13 @@ static NSString * const reuseIdentifier = @"Cell";
     CGRect startingPoint = [self.view convertRect:tempPoint fromView:[self.collectionView cellForItemAtIndexPath:indexPath]];
     [self.fullScreenImageView setFrame:startingPoint];
     
+    UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    self.effectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    [self.effectView setAlpha:0.0f];
+    [self.effectView setFrame:self.view.frame];
+    
+    [self.view addSubview:self.effectView];
+    
     [self.view addSubview:self.fullScreenImageView];
     
     [UIView animateWithDuration:0.4
@@ -187,6 +199,8 @@ static NSString * const reuseIdentifier = @"Cell";
                                                                   0,
                                                                   self.view.bounds.size.width,
                                                                   self.view.bounds.size.height)];
+                         [self.effectView setAlpha:1.0f];
+
                      }];
     
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fullScreenImageViewTapped:)];
@@ -244,44 +258,44 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 
-//#pragma mark - ScrollView Delegate
-//
-//-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
-//    // Calculate where the collection view should be at the bottom end item
-//    //take number of 300x300 cells plus 100x100 cells minus one screen length
-//    //11 pix 3big, 8 small = 900 + 800
-//    
-//    NSUInteger numberOfBigPix = (self.pictureArray.count-1)/3;
-//
-//    NSLog(@"number of big pix = %lu", (unsigned long)numberOfBigPix);
-//    NSLog(@"collectionviewitemsizeheight = %f", self.collectionViewLayout.collectionViewContentSize.height);
-//    
-//    float contentOffsetWhenFullyScrolledBottom = (self.collectionView.frame.size.width/3 + self.collectionView.layoutMargins.top)*numberOfBigPix-self.collectionView.frame.size.height;
-//    NSLog(@"contentOffsetWhen bottom = %f", contentOffsetWhenFullyScrolledBottom);
-//    NSLog(@"scollview.contentOffset.y = %f", scrollView.contentOffset.y);
-//    if (scrollView.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
-//        
-//        // user is scrolling to the bottom from the last item to the 'fake' item 1.
-//        // reposition offset to show the 'real' item 1 at the top of the collection view
-//        
-//        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
-//        
-//        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-//        NSLog(@"triggered scroll in equal contentoffset");
-//        
-//    } else if (scrollView.contentOffset.y == 0)  {
-//        
-//        // user is scrolling to the top from the first item to the fake 'item N'.
-//        // reposition offset to show the 'real' item N at the bottom end of the collection view
-//        
-//        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.pictureArray count] -2) inSection:0];
-//        
-//        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
-//        NSLog(@"triggered scroll in equal 0");
-//        
-//    }
-//
-//}
+#pragma mark - ScrollView Delegate
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    // Calculate where the collection view should be at the bottom end item
+    //take number of 300x300 cells plus 100x100 cells minus one screen length
+    //11 pix 3big, 8 small = 900 + 800
+    
+    NSUInteger numberOfBigPix = (self.pictureArray.count-1)/3;
+
+    NSLog(@"number of big pix = %lu", (unsigned long)numberOfBigPix);
+    NSLog(@"collectionviewitemsizeheight = %f", self.collectionViewLayout.collectionViewContentSize.height);
+    
+    float contentOffsetWhenFullyScrolledBottom = (self.collectionView.frame.size.width/3 + self.collectionView.layoutMargins.top)*numberOfBigPix-self.collectionView.frame.size.height;
+    NSLog(@"contentOffsetWhen bottom = %f", contentOffsetWhenFullyScrolledBottom);
+    NSLog(@"scollview.contentOffset.y = %f", scrollView.contentOffset.y);
+    if (scrollView.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
+        
+        // user is scrolling to the bottom from the last item to the 'fake' item 1.
+        // reposition offset to show the 'real' item 1 at the top of the collection view
+        
+        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
+        
+        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        NSLog(@"triggered scroll in equal contentoffset");
+        
+    } else if (scrollView.contentOffset.y == 0)  {
+        
+        // user is scrolling to the top from the first item to the fake 'item N'.
+        // reposition offset to show the 'real' item N at the bottom end of the collection view
+        
+        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.pictureArray count] -2) inSection:0];
+        
+        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+        NSLog(@"triggered scroll in equal 0");
+        
+    }
+
+}
 //
 //-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollview {
 //    
@@ -296,6 +310,7 @@ static NSString * const reuseIdentifier = @"Cell";
     [UIView animateWithDuration:0.5
                      animations:^{
                          [(UIImageView *)gestureRecognizer.view setFrame:point];
+                         [self.effectView setAlpha:0.0f];
                      }];
     [self performSelector:@selector(animationDone:) withObject:[gestureRecognizer view] afterDelay:0.4];
     
@@ -304,6 +319,8 @@ static NSString * const reuseIdentifier = @"Cell";
 -(void)animationDone:(UIView  *)view
 {
     [self.fullScreenImageView removeFromSuperview];
+    [self.effectView removeFromSuperview];
+    self.effectView = nil;
     self.fullScreenImageView = nil;
 }
 - (void)configureCell:(DRPictureCell *)cell forIndexPath:(NSIndexPath *)indexPath
@@ -315,5 +332,15 @@ static NSString * const reuseIdentifier = @"Cell";
             cell.imageView.image = self.images[indexPath];
         }
     }];
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    DRPictureCell *drCell = (DRPictureCell *)cell;
+    
+    
+    UIImage *newImage = [UIImage new];
+    drCell.imageView.image = newImage;
+    
+    
 }
 @end
