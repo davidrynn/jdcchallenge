@@ -16,6 +16,7 @@
     if (self) {
         self.imageView = [[UIImageView alloc] init];
         [self.contentView addSubview:self.imageView];
+        self.backgroundColor = [UIColor greenColor];
     }
     return self;
 }
