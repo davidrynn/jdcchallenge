@@ -153,6 +153,7 @@ static NSString * const reuseIdentifier = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     DRPictureCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+
     [self configureCell:cell forIndexPath:indexPath];
     
     return cell;
@@ -172,6 +173,7 @@ static NSString * const reuseIdentifier = @"Cell";
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
     DRPictureCell *cell = (DRPictureCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    cell.accessibilityLabel = @"Selected Cell";
     
     [cell setSelected:YES];
     
@@ -196,6 +198,7 @@ static NSString * const reuseIdentifier = @"Cell";
     self.fullScreenImageView = [[UIImageView alloc] init];
     [self.fullScreenImageView setContentMode:UIViewContentModeScaleAspectFit];
     self.fullScreenImageView.image = [self.originalImageView image];
+    self.fullScreenImageView.accessibilityLabel = @"Zoomed View";
 }
 
 -(void)setupEffectViewForSelectedCell{
@@ -267,6 +270,7 @@ static NSString * const reuseIdentifier = @"Cell";
         if (self.imagesArray[indexPath.row])
         {
             cell.imageView.image = self.imagesArray[indexPath.row];
+            cell.accessibilityLabel =@"cell";
         }
     }];
 }
