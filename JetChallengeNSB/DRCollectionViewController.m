@@ -19,6 +19,7 @@
 @property (nonatomic, strong) UIVisualEffectView *effectView;
 @property (nonatomic) NSUInteger pageNumber;
 @property (nonatomic, strong) NSURL *nextURL;
+@property (nonatomic, strong) DRAPIUtility *instagramApi;
 
 @end
 //TODO: Make it accessible
@@ -48,24 +49,30 @@ static NSString * const reuseIdentifier = @"Cell";
     self.title = @"Jet.com Challenge";
     
     [self setupLongGesture];
+    
+    self.instagramApi = [[DRAPIUtility alloc] init];
+    self.images = [[NSMutableDictionary alloc] init];
+    
     [self setupDataForCollectionView];
     
     self.collectionView.backgroundColor = [UIColor whiteColor];
     
     self.pageNumber = 0;
+    self.nextURL = [[NSURL alloc] init];
 
 
 }
 
 -(void)setupDataForCollectionView {
     
-    self.images = [[NSMutableDictionary alloc] init];
-    DRAPIUtility *instagramApi = [[DRAPIUtility alloc] init];
-    [instagramApi getImagesPage:0 instagramURL:self.nextURL imageBlock:^(UIImage *image, NSIndexPath *indexPath, NSUInteger numberOfImages) {
+
+
+    [self.instagramApi getImagesPage:self.pageNumber instagramURL:self.nextURL imageBlock:^(UIImage *image, NSIndexPath *indexPath) {
         [self.images setObject:image forKey:indexPath];
         [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
     } completionBlock:^(NSURL *url) {
         self.nextURL=url;
+        
     }];
 
 }
@@ -124,7 +131,7 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    return 20;
+    return 33;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -136,6 +143,8 @@ static NSString * const reuseIdentifier = @"Cell";
 
 
 -(void)collectionView:(UICollectionView *)collectionView moveItemAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath{
+    
+//TODO: swap self.images for reorder
     
 }
 
@@ -229,16 +238,17 @@ static NSString * const reuseIdentifier = @"Cell";
 -(CGSize)collectionView:(UICollectionView*)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(nonnull NSIndexPath *)indexPath{
     
     UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
+    //must find insets in order for width to be accurate and not cause layout warnings
     CGFloat frameWidth = self.collectionView.frame.size.width;
     CGFloat sectionInsetWidth = flowLayout.sectionInset.right +flowLayout.sectionInset.left;
     CGFloat contentSectionWidth = self.collectionView.contentInset.left + self.collectionView.contentInset.right;
+    
     if (indexPath.row % 3 == 0) {
         CGFloat width = frameWidth - sectionInsetWidth - contentSectionWidth;
         return CGSizeMake(width, width);
     }
-//    the item width must be less than the width of the UICollectionView minus the section insets left and right values, minus the content insets left and right values.
     
-    return CGSizeMake(frameWidth/3, frameWidth/3);
+    return CGSizeMake(frameWidth/3,frameWidth/3);
 }
 //-(UIEdgeInsets)collectionView: (UICollectionView *)collectionView layout:(nonnull UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
 //    
@@ -264,36 +274,43 @@ static NSString * const reuseIdentifier = @"Cell";
     // Calculate where the collection view should be at the bottom end item
     //take number of 300x300 cells plus 100x100 cells minus one screen length
     //11 pix 3big, 8 small = 900 + 800
-    
-    NSUInteger numberOfBigPix = (self.pictureArray.count-1)/3;
 
-    NSLog(@"number of big pix = %lu", (unsigned long)numberOfBigPix);
-    NSLog(@"collectionviewitemsizeheight = %f", self.collectionViewLayout.collectionViewContentSize.height);
-    
-    float contentOffsetWhenFullyScrolledBottom = (self.collectionView.frame.size.width/3 + self.collectionView.layoutMargins.top)*numberOfBigPix-self.collectionView.frame.size.height;
-    NSLog(@"contentOffsetWhen bottom = %f", contentOffsetWhenFullyScrolledBottom);
+    CGFloat frameHeight =self.collectionView.bounds.size.height;
+    CGFloat contentHeight = self.collectionView.contentSize.height;
+
+    NSLog(@"content size = %f", contentHeight);
+
+    float contentOffsetWhenFullyScrolledBottom = contentHeight-2*frameHeight;
+    NSLog(@"***contentOffsetWhen bottom = %f", contentOffsetWhenFullyScrolledBottom);
     NSLog(@"scollview.contentOffset.y = %f", scrollView.contentOffset.y);
-    if (scrollView.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
-        
+    if (self.collectionView.contentSize.height>2000 && scrollView.contentOffset.y >= contentOffsetWhenFullyScrolledBottom) {
+        self.pageNumber ++;
+        [self setupDataForCollectionView];
+        [self.collectionView reloadData];
+
+        /****Code for infinite circular scroll***
+         
         // user is scrolling to the bottom from the last item to the 'fake' item 1.
         // reposition offset to show the 'real' item 1 at the top of the collection view
         
-        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:1 inSection:0];
+        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:2 inSection:0];
         
         [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-        NSLog(@"triggered scroll in equal contentoffset");
-        
-    } else if (scrollView.contentOffset.y == 0)  {
-        
-        // user is scrolling to the top from the first item to the fake 'item N'.
-        // reposition offset to show the 'real' item N at the bottom end of the collection view
-        
-        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.pictureArray count] -2) inSection:0];
-        
-        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
-        NSLog(@"triggered scroll in equal 0");
-        
+
+         ***************************************/
+              NSLog(@"triggered scroll to top from bottom");
     }
+//    else if (scrollView.contentOffset.y == -60.0)  {
+//        
+//        // user is scrolling to the top from the first item to the fake 'item N'.
+//        // reposition offset to show the 'real' item N at the bottom end of the collection view
+//        
+//        NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:18 inSection:0];
+//        
+//        [self.collectionView scrollToItemAtIndexPath:newIndexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+//        NSLog(@"triggered scroll to bottom from top");
+//        
+//    }
 
 }
 //

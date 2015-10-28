@@ -14,25 +14,25 @@
 
 @implementation DRAPIUtility
 
-- (void)getImagesPage:(NSNumber*)pageNumber instagramURL: (NSURL *) url
-            imageBlock:(void (^)(UIImage *, NSIndexPath *, NSUInteger))imageBlock
+- (void)getImagesPage:(NSUInteger)pageNumber instagramURL: (NSURL *) url
+            imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock
        completionBlock:(void (^)(NSURL*))completion
 {
     __block UIImage *placeholderImage = [UIImage imageNamed:@"jdc1.jpeg"];
     __block NSURL *instagramImagesURL = [[NSURL alloc] init];
+    __block NSInteger returnedCount=0;
     
     //20 images at a time from api
-    for (NSInteger i = 0; i < 20; i++) {
+    for (NSInteger i = 0; i < 33; i++) {
         
         NSOperationQueue* queue = [[NSOperationQueue alloc] init];
         queue.maxConcurrentOperationCount = 10;
-        __block NSInteger returnedCount=0;
-        
+
         NSOperationQueue* imageQueue = [[NSOperationQueue alloc] init];
         imageQueue.maxConcurrentOperationCount = 10;
         
         if (pageNumber == 0) {
-                   instagramImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.instagram.com/v1/tags/jetdotcom/media/recent?client_id=%@", CLIENT_ID]];
+                   instagramImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.instagram.com/v1/tags/jetdotcom/media/recent?client_id=%@&count=55", CLIENT_ID]];
         }
 
 
@@ -46,35 +46,28 @@
             
             NSDictionary* responseDictionary = (NSDictionary*)responseObject;
             
-//  DOESN"T WORK          //setup load
-//            if (i>0&&(i+1)%20==0) {
-//                instagramImagesURL = [NSURL URLWithString:responseDictionary[@"pagination"][@"next_url"] ];
-//            }
-            
+
             [imageQueue addOperationWithBlock:^{
                 
-                NSIndexPath* indexpath = [NSIndexPath indexPathForRow:[pageNumber integerValue]*20+i inSection:0];
+                NSIndexPath* indexpath = [NSIndexPath indexPathForRow:pageNumber*20+i inSection:0];
                 NSArray *dataArray =responseDictionary[@"data"];
-                NSLog(@"%@",dataArray[i][@"images"][@"low_resolution"][@"url"]);
-
                 NSData* imageData = [NSData dataWithContentsOfURL:
-                                     [NSURL URLWithString:responseDictionary[@"data"][i][@"images"][@"low_resolution"][@"url"]]];
+                                     [NSURL URLWithString:dataArray[i][@"images"][@"low_resolution"][@"url"]]];
                 
-                //delete
-                NSUInteger numberOfImages = dataArray.count;
+ 
                 UIImage* instagramImage = [UIImage imageWithData:imageData];
                 if (!instagramImage) {
                     instagramImage = placeholderImage;
                 }
                 NSOperation *imageOp = [NSBlockOperation blockOperationWithBlock:^{
-                    imageBlock(instagramImage, indexpath, numberOfImages);
+                    imageBlock(instagramImage, indexpath);
                 }];
                 NSOperation *checkCompleteOp = [NSBlockOperation blockOperationWithBlock:^{
                     returnedCount++;
-                    if (returnedCount==10) {
-                        if (completion) {
+                    if (returnedCount==20) {
+
                             completion([NSURL URLWithString:responseDictionary[@"pagination"][@"next_url"]]);
-                        }
+
                     }
                 }];
                 [checkCompleteOp addDependency:imageOp];

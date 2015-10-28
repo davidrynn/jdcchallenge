@@ -11,7 +11,7 @@
 
 @interface DRAPIUtility : NSObject
 
-- (void)getImagesPage:(NSNumber*)pageNumber instagramURL: (NSURL *) url
-           imageBlock:(void (^)(UIImage *, NSIndexPath *, NSUInteger))imageBlock
+- (void)getImagesPage:(NSUInteger)pageNumber instagramURL: (NSURL *) url
+           imageBlock:(void (^)(UIImage *, NSIndexPath *))imageBlock
       completionBlock:(void (^)(NSURL*))completion;
 @end
